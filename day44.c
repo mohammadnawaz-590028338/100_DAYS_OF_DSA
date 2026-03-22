@@ -1,42 +1,66 @@
-#include <iostream>
-#include <queue>
-using namespace std;
+#include <stdio.h>
+#include <stdlib.h>
 
+// Node structure
 struct Node {
     int data;
-    Node* left;
-    Node* right;
-    
-    Node(int val) {
-        data = val;
-        left = right = NULL;
-    }
+    struct Node* left;
+    struct Node* right;
 };
 
-// Function to build tree from level order
-Node* buildTree(int arr[], int n) {
-    if (n == 0) return NULL;
+// Create new node
+struct Node* newNode(int val) {
+    struct Node* node = (struct Node*)malloc(sizeof(struct Node));
+    node->data = val;
+    node->left = NULL;
+    node->right = NULL;
+    return node;
+}
 
-    Node* root = new Node(arr[0]);
-    queue<Node*> q;
-    q.push(root);
+// Queue for building tree
+struct Queue {
+    struct Node* arr[1000];
+    int front, rear;
+};
+
+void initQueue(struct Queue* q) {
+    q->front = q->rear = 0;
+}
+
+void enqueue(struct Queue* q, struct Node* node) {
+    q->arr[q->rear++] = node;
+}
+
+struct Node* dequeue(struct Queue* q) {
+    return q->arr[q->front++];
+}
+
+// Build tree from level order
+struct Node* buildTree(int arr[], int n) {
+    if (n == 0 || arr[0] == -1) return NULL;
+
+    struct Queue q;
+    initQueue(&q);
+
+    struct Node* root = newNode(arr[0]);
+    enqueue(&q, root);
 
     int i = 1;
+
     while (i < n) {
-        Node* curr = q.front();
-        q.pop();
+        struct Node* curr = dequeue(&q);
 
         // Left child
         if (arr[i] != -1) {
-            curr->left = new Node(arr[i]);
-            q.push(curr->left);
+            curr->left = newNode(arr[i]);
+            enqueue(&q, curr->left);
         }
         i++;
 
         // Right child
         if (i < n && arr[i] != -1) {
-            curr->right = new Node(arr[i]);
-            q.push(curr->right);
+            curr->right = newNode(arr[i]);
+            enqueue(&q, curr->right);
         }
         i++;
     }
@@ -44,47 +68,49 @@ Node* buildTree(int arr[], int n) {
     return root;
 }
 
-// Traversals
-void inorder(Node* root) {
-    if (!root) return;
+// Inorder: Left Root Right
+void inorder(struct Node* root) {
+    if (root == NULL) return;
     inorder(root->left);
-    cout << root->data << " ";
+    printf("%d ", root->data);
     inorder(root->right);
 }
 
-void preorder(Node* root) {
-    if (!root) return;
-    cout << root->data << " ";
+// Preorder: Root Left Right
+void preorder(struct Node* root) {
+    if (root == NULL) return;
+    printf("%d ", root->data);
     preorder(root->left);
     preorder(root->right);
 }
 
-void postorder(Node* root) {
-    if (!root) return;
+// Postorder: Left Right Root
+void postorder(struct Node* root) {
+    if (root == NULL) return;
     postorder(root->left);
     postorder(root->right);
-    cout << root->data << " ";
+    printf("%d ", root->data);
 }
 
 int main() {
     int n;
-    cin >> n;
+    scanf("%d", &n);
 
-    int arr[n];
+    int arr[1000];
     for (int i = 0; i < n; i++) {
-        cin >> arr[i];
+        scanf("%d", &arr[i]);
     }
 
-    Node* root = buildTree(arr, n);
+    struct Node* root = buildTree(arr, n);
 
     inorder(root);
-    cout << endl;
+    printf("\n");
 
     preorder(root);
-    cout << endl;
+    printf("\n");
 
     postorder(root);
-    cout << endl;
+    printf("\n");
 
     return 0;
 }
